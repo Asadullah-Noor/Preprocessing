@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>150-Day Master Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07071A;--card:#0F0F2E;--card2:#131340;
+  --border:rgba(167,139,250,0.18);--border2:rgba(167,139,250,0.09);
+  --purple:#A78BFA;--purple-dim:#7C3AED;--purple-glow:rgba(167,139,250,0.2);
+  --green:#34D399;--orange:#FB923C;--red:#F87171;--blue:#60A5FA;
+  --text:#E2E8F0;--muted:#94A3B8;--muted2:#64748B;
+}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(167,139,250,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(167,139,250,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.app{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:20px}
+.header{background:linear-gradient(135deg,#1E1B4B,#0F0F2E);border:1px solid var(--border);border-radius:16px;padding:22px 28px;margin-bottom:18px;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(167,139,250,0.12) 0%,transparent 70%);border-radius:50%}
+.header h1{font-size:1.6rem;font-weight:900;letter-spacing:-0.02em;background:linear-gradient(135deg,#fff,#A78BFA);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header .sub{font-size:0.85rem;color:var(--muted);margin-top:5px}
+.header .dates{font-size:0.78rem;color:var(--purple);font-weight:600;margin-top:6px;font-family:'JetBrains Mono',monospace}
+.tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.tab{padding:9px 20px;border-radius:30px;border:1px solid var(--border);cursor:pointer;font-size:0.85rem;font-weight:600;transition:all 0.2s;background:var(--card);color:var(--muted);font-family:'Outfit',sans-serif}
+.tab:hover{border-color:var(--purple);color:var(--purple)}
+.tab.active{background:var(--purple-dim);color:#fff;border-color:var(--purple-dim);box-shadow:0 0 18px rgba(124,58,237,0.35)}
+.card{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:18px;margin-bottom:14px}
+.card-title{font-size:0.72rem;font-weight:700;color:var(--muted2);margin-bottom:16px;text-transform:uppercase;letter-spacing:0.08em}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.stat-card{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:16px;text-align:center}
+.stat-num{font-size:2rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:var(--purple)}
+.stat-num.green{color:var(--green)}
+.stat-num.orange{color:var(--orange)}
+.stat-label{font-size:0.72rem;color:var(--muted);margin-top:3px}
+.today-card{background:linear-gradient(135deg,rgba(76,29,149,0.4),rgba(19,19,64,0.8));border:1px solid var(--purple);border-radius:14px;padding:18px;margin-bottom:14px}
+.today-title{font-size:1rem;font-weight:700;color:#fff;margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.badge{font-size:0.65rem;font-weight:700;padding:2px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:0.05em}
+.badge-purple{background:var(--purple-dim);color:#fff}
+.badge-orange{background:rgba(251,146,60,0.2);color:var(--orange);border:1px solid rgba(251,146,60,0.3)}
+.badge-blue{background:rgba(96,165,250,0.15);color:var(--blue);border:1px solid rgba(96,165,250,0.2)}
+.badge-green{background:rgba(52,211,153,0.15);color:var(--green);border:1px solid rgba(52,211,153,0.25)}
+.prog-bar{background:rgba(255,255,255,0.08);border-radius:100px;height:7px;overflow:hidden;margin-top:6px}
+.prog-fill{height:100%;border-radius:100px;transition:width 0.5s ease}
+.prog-fill.purple{background:linear-gradient(90deg,var(--purple-dim),var(--purple))}
+.prog-fill.green{background:linear-gradient(90deg,#059669,var(--green))}
+.prog-fill.blue{background:linear-gradient(90deg,#2563EB,var(--blue))}
+.task-item{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid var(--border2)}
+.task-item:last-child{border-bottom:none}
+.task-check{width:24px;height:24px;border:2px solid var(--border);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all 0.25s;background:transparent;user-select:none}
+.task-check:hover{border-color:var(--purple);background:var(--purple-glow)}
+.task-check.done{background:var(--purple-dim);border-color:var(--purple-dim);box-shadow:0 0 10px rgba(124,58,237,0.4)}
+.task-check.done::after{content:'✓';color:white;font-size:13px;font-weight:700}
+.task-info{flex:1;min-width:0}
+.task-name{font-size:0.88rem;font-weight:600;line-height:1.4}
+.task-name.done-text{text-decoration:line-through;color:var(--muted2)}
+.task-sub{font-size:0.74rem;color:var(--muted);margin-top:3px;line-height:1.4}
+.task-time{font-size:0.68rem;color:var(--green);margin-top:4px;font-family:'JetBrains Mono',monospace}
+.dp{font-size:0.63rem;font-weight:700;padding:2px 8px;border-radius:20px;display:inline-block;margin-top:4px}
+.dp-eng{background:rgba(96,165,250,0.12);color:var(--blue);border:1px solid rgba(96,165,250,0.2)}
+.dp-math{background:rgba(167,139,250,0.1);color:var(--purple);border:1px solid rgba(167,139,250,0.2)}
+.week-block{margin-bottom:8px}
+.week-hdr{padding:11px 16px;background:var(--card2);border:1px solid var(--border2);border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:all 0.2s;font-size:0.85rem;font-weight:700;user-select:none}
+.week-hdr:hover{border-color:var(--border)}
+.week-hdr.cur{border-color:var(--purple);background:rgba(76,29,149,0.2)}
+.week-days{margin-top:5px;display:none}
+.week-days.open{display:block}
+.day-item{border:1px solid var(--border2);border-radius:10px;margin-bottom:5px;overflow:hidden;transition:border-color 0.2s}
+.day-item:hover{border-color:var(--border)}
+.day-item.today-day{border-color:var(--purple);background:rgba(76,29,149,0.08)}
+.day-item.done-day{border-color:rgba(52,211,153,0.3)}
+.day-hdr{padding:11px 16px;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;flex-wrap:nowrap}
+.day-badge{font-size:0.65rem;font-weight:700;color:#fff;background:var(--purple-dim);padding:2px 9px;border-radius:20px;font-family:'JetBrains Mono',monospace;flex-shrink:0}
+.day-badge.rev{background:rgba(251,146,60,0.25);color:var(--orange);border:1px solid rgba(251,146,60,0.3)}
+.day-badge.done-b{background:rgba(52,211,153,0.18);color:var(--green);border:1px solid rgba(52,211,153,0.3)}
+.day-badge.today-b{background:var(--purple-dim);box-shadow:0 0 10px rgba(124,58,237,0.5)}
+.day-date{font-size:0.73rem;color:var(--muted);flex-shrink:0;font-family:'JetBrains Mono',monospace}
+.day-preview{font-size:0.8rem;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.day-pct{font-size:0.73rem;font-weight:700;font-family:'JetBrains Mono',monospace;flex-shrink:0}
+.day-arrow{color:var(--muted2);font-size:0.75rem;flex-shrink:0}
+.day-panel{padding:12px 16px;background:rgba(0,0,0,0.25);border-top:1px solid var(--border2);display:none}
+.day-panel.open{display:block}
+.donut-row{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;padding:8px 0}
+.donut-wrap{text-align:center}
+.donut-lbl{font-size:0.78rem;color:var(--muted);margin-top:8px;font-weight:600}
+.donut-sub{font-size:0.67rem;color:var(--muted2);margin-top:2px;font-family:'JetBrains Mono',monospace}
+.filter-row{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.filter-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--border2);cursor:pointer;font-size:0.74rem;font-weight:600;background:var(--card);color:var(--muted);font-family:'Outfit',sans-serif;transition:all 0.2s}
+.filter-btn:hover{border-color:var(--border);color:var(--text)}
+.filter-btn.active{background:var(--purple-dim);color:#fff;border-color:var(--purple-dim)}
+.jump-btn{padding:6px 16px;border-radius:20px;border:1px solid var(--border);background:var(--purple-glow);color:var(--purple);cursor:pointer;font-size:0.74rem;font-weight:700;font-family:'Outfit',sans-serif;transition:all 0.2s}
+.jump-btn:hover{background:var(--purple-dim);color:#fff}
+.heatmap{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.hm-cell{width:15px;height:15px;border-radius:3px;cursor:default;transition:transform 0.1s}
+.hm-cell:hover{transform:scale(1.3)}
+.graph-wrap{overflow-x:auto}
+.ms-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border2)}
+.ms-row:last-child{border-bottom:none}
+@media(max-width:640px){.stats-row{grid-template-columns:repeat(2,1fr)}.stat-num{font-size:1.5rem}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="header">
+    <h1>🎯 150-Day Master Tracker</h1>
+    <div class="sub">IELTS Band 8–9 &nbsp;·&nbsp; AI Mathematics &nbsp;·&nbsp; Harvard / MIT / Stanford</div>
+    <div class="dates">📅 Apr 23, 2026 → Sep 19, 2026</div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+    <button class="tab" onclick="switchTab('english')">🇬🇧 English</button>
+    <button class="tab" onclick="switchTab('math')">🧮 AI Math</button>
+    <button class="tab" onclick="switchTab('progress')">📈 Progress</button>
+  </div>
+  <div id="content"></div>
+</div>
+
+<script>
+const START=new Date('2026-04-23');
+const TOTAL=150;
+const SK='tracker150_xhaffix';
+
+const MT=[
+  {t:"Scalars, Vectors & Matrices",u:"Core data structure for all ML models"},
+  {t:"Matrix Addition & Multiplication",u:"Neural network forward pass"},
+  {t:"Transpose & Identity Matrix",u:"Weight matrix manipulation"},
+  {t:"Dot Product & Vector Norms",u:"Similarity & distance in embeddings"},
+  {t:"Linear Transformations",u:"Feature space transformations"},
+  {t:"Systems of Linear Equations",u:"Solving model parameters"},
+  {t:"Determinants",u:"Checking matrix invertibility"},
+  {t:"Matrix Inverse",u:"Solving Ax=b in linear regression"},
+  {t:"Eigenvalues & Eigenvectors",u:"PCA dimensionality reduction"},
+  {t:"Eigendecomposition",u:"Covariance matrix analysis"},
+  {t:"SVD — Singular Value Decomposition",u:"Recommendation systems"},
+  {t:"Rank, Null Space & Column Space",u:"Understanding data dimensions"},
+  {t:"Vector Spaces & Subspaces",u:"Feature space in ML"},
+  {t:"Orthogonality & Projections",u:"Least squares regression"},
+  {t:"Gram-Schmidt Process",u:"QR decomposition in algorithms"},
+  {t:"PCA — Mathematical Derivation",u:"Dimensionality reduction"},
+  {t:"Matrix Factorization (NMF, LU)",u:"Collaborative filtering"},
+  {t:"Linear Regression — Matrix Form",u:"Supervised learning foundation"},
+  {t:"Sample Space, Events & Probability Axioms",u:"Foundation of probabilistic models"},
+  {t:"Conditional Probability",u:"Naive Bayes classifier"},
+  {t:"Bayes' Theorem",u:"Bayesian ML & spam filters"},
+  {t:"Discrete Random Variables",u:"Classification model outputs"},
+  {t:"Continuous Random Variables",u:"Regression model outputs"},
+  {t:"Overview of Probability Distributions",u:"Choosing models for data"},
+  {t:"Bernoulli & Binomial Distribution",u:"Binary classification"},
+  {t:"Poisson Distribution",u:"Event frequency modeling"},
+  {t:"Uniform & Exponential Distribution",u:"Random sampling"},
+  {t:"Normal / Gaussian Distribution",u:"Noise modeling & CLT"},
+  {t:"Standard Normal & Z-scores",u:"Feature standardization"},
+  {t:"Joint & Marginal Probability",u:"Multivariate probabilistic models"},
+  {t:"Expected Value",u:"Loss function expectation in training"},
+  {t:"Variance & Standard Deviation",u:"Model uncertainty measurement"},
+  {t:"Covariance & Correlation",u:"Feature relationships"},
+  {t:"Law of Large Numbers",u:"Batch training convergence"},
+  {t:"Central Limit Theorem",u:"Sampling in ML pipelines"},
+  {t:"Entropy & Information Theory",u:"Decision trees & cross-entropy loss"},
+  {t:"KL Divergence",u:"VAEs & model distribution comparison"},
+  {t:"Cross-Entropy Loss Derivation",u:"Training classification models"},
+  {t:"Maximum Likelihood Estimation (MLE)",u:"Parameter learning"},
+  {t:"Maximum A Posteriori (MAP)",u:"Regularized Bayesian learning"},
+  {t:"Hypothesis Testing",u:"A/B testing & model evaluation"},
+  {t:"Confidence Intervals & p-values",u:"Prediction uncertainty"},
+  {t:"Functions, Limits & Continuity",u:"Loss function behavior"},
+  {t:"Derivatives & Differentiation Rules",u:"Gradient computation"},
+  {t:"Chain Rule",u:"Backpropagation in neural networks"},
+  {t:"Partial Derivatives",u:"Multi-variable loss optimization"},
+  {t:"Gradient Vector",u:"Gradient descent direction"},
+  {t:"Directional Derivatives",u:"Understanding learning direction"},
+  {t:"Higher-Order Derivatives",u:"Curvature & second-order methods"},
+  {t:"Taylor Series Expansion",u:"Function approximation in ML"},
+  {t:"Basic Integration",u:"Probability density functions"},
+  {t:"Definite Integrals",u:"Computing probabilities"},
+  {t:"Multivariable Functions",u:"Neural network computations"},
+  {t:"Jacobian Matrix",u:"Backprop in vector-valued functions"},
+  {t:"Hessian Matrix",u:"Second-order optimization"},
+  {t:"Convexity & Concavity",u:"Convex optimization theory"},
+  {t:"Saddle Points & Local Minima",u:"Understanding loss landscapes"},
+  {t:"Automatic Differentiation",u:"PyTorch / TensorFlow internals"},
+  {t:"Computational Graphs",u:"Neural network training flow"},
+  {t:"Calculus in Neural Networks (Full)",u:"Forward & backward pass math"},
+  {t:"Optimization Problem Formulation",u:"ML objective functions"},
+  {t:"Gradient Descent Algorithm",u:"Training all neural networks"},
+  {t:"Stochastic Gradient Descent (SGD)",u:"Large-scale training"},
+  {t:"Mini-batch Gradient Descent",u:"Practical deep learning"},
+  {t:"Learning Rate & Convergence Theory",u:"Hyperparameter tuning"},
+  {t:"Momentum & Nesterov Acceleration",u:"Faster convergence"},
+  {t:"Adagrad Optimizer",u:"Adaptive learning rates"},
+  {t:"RMSProp Optimizer",u:"Non-stationary objectives"},
+  {t:"Adam Optimizer — Full Math",u:"Modern deep learning standard"},
+  {t:"Constrained Optimization",u:"SVM & regularization"},
+  {t:"Lagrange Multipliers",u:"SVM margin maximization"},
+  {t:"KKT Conditions",u:"Constrained ML problem solving"},
+  {t:"Convex Optimization Theory",u:"Guaranteed convergence proofs"},
+  {t:"L1 & L2 Regularization Math",u:"Preventing overfitting"},
+  {t:"Loss Functions — MSE, MAE, Hinge, CE",u:"Supervised learning objectives"},
+  {t:"Bias-Variance Tradeoff",u:"Model selection & complexity"},
+  {t:"Overfitting & Underfitting Math",u:"Generalization theory"},
+  {t:"Cross-Validation Math",u:"Reliable model evaluation"},
+  {t:"Linear Regression — Full Derivation",u:"Regression problems"},
+  {t:"Logistic Regression Math",u:"Binary classification"},
+  {t:"SVM Math — Margins & Kernels",u:"High-dimensional classification"},
+  {t:"Decision Trees — Info Gain & Gini",u:"Interpretable models"},
+  {t:"Ensemble Methods Math",u:"Random forests & boosting"},
+  {t:"Neural Network — Forward Pass Math",u:"Deep learning prediction"},
+  {t:"Neural Network — Full Backpropagation",u:"Training via chain rule"},
+  {t:"Activation Functions — ReLU, Tanh, GELU",u:"Non-linearity in networks"},
+  {t:"Softmax & Sigmoid Derivation",u:"Output layer computations"},
+  {t:"Batch Normalization Math",u:"Stable deep network training"},
+  {t:"Dropout Math & Probability",u:"Regularization in deep nets"},
+  {t:"CNN Math — Convolution & Pooling",u:"Image recognition & vision"},
+  {t:"RNN Math — Sequential Data",u:"Time series & NLP"},
+  {t:"LSTM Math & Gates",u:"Long-term dependency modeling"},
+  {t:"Attention Mechanism Math",u:"Transformer foundation"},
+  {t:"Self-Attention & Multi-Head Attention",u:"BERT & GPT architecture"},
+  {t:"Positional Encoding Math",u:"Sequence order in transformers"},
+  {t:"Transformer Architecture Math",u:"Foundation of modern LLMs"},
+  {t:"Word Embeddings — Word2Vec, GloVe",u:"NLP representations"},
+  {t:"t-SNE Math",u:"High-dimensional visualization"},
+  {t:"K-Means Clustering Math",u:"Unsupervised learning"},
+  {t:"GMM & EM Algorithm",u:"Soft clustering"},
+  {t:"Graph Math — Adjacency, Laplacian",u:"Graph Neural Networks"},
+  {t:"Spectral Graph Theory",u:"Graph-based ML"},
+  {t:"MDP & Bellman Equations",u:"Reinforcement learning foundation"},
+  {t:"Q-Learning Math",u:"Value-based RL agents"},
+  {t:"Policy Gradient Math — REINFORCE",u:"Model-free RL"},
+  {t:"Monte Carlo Methods",u:"Sampling-based RL"},
+  {t:"Markov Chains",u:"Text generation & RL models"},
+  {t:"Game Theory Basics",u:"GANs & multi-agent RL"},
+  {t:"Variational Inference Math",u:"VAE latent space"},
+  {t:"GAN Math — Generator & Discriminator Loss",u:"Image generation"},
+  {t:"Diffusion Models Math Basics",u:"Stable Diffusion & DALL-E"},
+  {t:"Bayesian Deep Learning",u:"Uncertainty estimation"},
+  {t:"Meta-Learning Math",u:"Few-shot learning"},
+  {t:"Contrastive Learning Math — CLIP",u:"Self-supervised learning"},
+  {t:"Information Bottleneck Theory",u:"Optimal representation learning"},
+  {t:"PAC Learning Theory",u:"Generalization bounds"},
+  {t:"VC Dimension",u:"Model complexity measurement"},
+  {t:"Rademacher Complexity",u:"Generalization theory"},
+  {t:"Newton's Method & 2nd-Order Optimization",u:"Fast convergence"},
+  {t:"Fast Fourier Transform (FFT) Math",u:"Audio & signal ML"},
+  {t:"Sparse Representations & LASSO",u:"Compressed sensing"},
+  {t:"Optimal Transport Math",u:"Domain adaptation"},
+  {t:"Final Review — Linear Algebra & Probability",u:"Consolidate all foundations"},
+  {t:"Final Review — Calculus & Optimization",u:"Consolidate core math"},
+  {t:"Final Mock Problem Set — All Topics",u:"Full readiness check"},
+];
+
+const EW={
+  t2:["Technology's role in education","Should governments fund the arts?","Is globalization beneficial?","Social media's impact on youth","Remote work: pros and cons","Is university education necessary?","AI replacing human jobs","Nuclear energy as clean power","Compulsory voting in elections","Banning single-use plastics","Space exploration funding","Abolishing the death penalty","Universal basic income","Mandatory military service","Social media age restrictions","Autonomous vehicles on roads","Gene editing in humans","Tourism and cultural preservation"],
+  t1:["Bar chart: internet users by country","Line graph: CO2 emissions over time","Pie chart: global energy sources","Table: population growth by region","Bar chart: employment sectors","Line graph: economic growth trends","Multiple graphs: tourism trends","Bar + line: GDP and unemployment","Map: city development changes","Pie charts: household expenditure","Table: comparative education stats","Flow chart: economic cycle","Complex: 3-graph combination","Map: before and after comparison","Table + bar: multi-data analysis","Comparative line charts","Timeline graph","Process + pie hybrid chart"],
+  listen:["Cambridge Book 1-4: Section 1","BBC Learning English: News Report","Cambridge Book 1-4: Section 2","VOA Learning English: Feature Story","Cambridge Book 5-8: Section 3","BBC World Service: Documentary","Cambridge Book 10-12: Section 3","TED Talk: Technology (15 min)","Cambridge Book 10-12: Section 4","BBC Podcast: Science Weekly","Cambridge Book 13-15: Full Section","Academic Lecture Recording","Cambridge 16-18: Full Listening Test","Native Speed Documentary","Cambridge 16-18: Section 4 Intensive","TED Talk: Complex Topic","Mock IELTS Listening (40 min)","Dictation Practice: Fast Speech"],
+  read:["Skim & Scan Practice: BBC Article","True/False/Not Given: Cambridge Passage","Matching Headings: Guardian Article","Short Answer Questions: Academic Text","Multiple Choice: Science Article","Summary Completion: History Text","Cambridge 10-12: Passage 1 (20 min)","Matching Information: Complex Text","Cambridge 10-12: Passage 2 (20 min)","True/Not Given: Academic Journal","Cambridge 13-15: Passage 3","Sentence Completion: Economic Text","Cambridge 16-18: Full Reading Test","Hard Passage: Inference Questions","Cambridge 16-18: Passage 3 (hardest)","Speed Reading: Target 60 min","Mock Reading Test + Full Analysis","Weak Area Drill: Question Types"],
+  speak:["Part 1: Record — Daily Life","Part 2: Cue Card — A person you admire","Part 1: Record — Hometown","Part 2: Cue Card — A memorable event","Part 3: Discussion — Education & Tech","Full Mock Speaking (14 min, Recorded)","Part 2: Complex Cue Card + Follow-up","Part 3: Abstract Discussion — Society","Pronunciation Drill: Stress & Intonation","Part 2: Fluency Practice — 2 min talk","Part 3: Opinion Questions — Advanced","Full Speaking Mock + Self-Evaluation","Full Timed Speaking Mock (14 min)","Band 8 Model Answers: Analysis","Vocabulary in Speaking: Academic Words","Part 3: Debate-Style Questions","Final Mock: Full IELTS Speaking Test","Fluency Polish: Zero Hesitation"],
+};
+
+function getPhase(d){return d<=42?1:d<=98?2:3}
+function getMathIdx(d){let c=0;for(let i=1;i<=d;i++)if(i%7!==0)c++;return c-1;}
+function getEngDay(d){
+  if(d%7===0)return{rev:true,tasks:[{id:'r1',name:'Review all 4 skills — Listening, Reading, Writing, Speaking',sub:'Go through this week notes and flag weak areas',dom:'eng'},{id:'r2',name:'Re-write 1 Writing task from this week',sub:'Try to score yourself against Band 8 rubric',dom:'eng'},{id:'r3',name:'Identify your 3 weakest areas this week',sub:'Plan focused practice for next week',dom:'eng'}]};
+  const cd=((d-1)%7)+1,pi=d%18,tasks=[];
+  if([1,3,5,6].includes(cd))tasks.push({id:'write',name:'Writing Task 2 — '+EW.t2[pi%EW.t2.length],sub:'Write 250+ words in 40 min · Structure: Intro→Body1→Body2→Conclusion',dom:'eng',mins:40});
+  else tasks.push({id:'write',name:'Writing Task 1 — '+EW.t1[pi%EW.t1.length],sub:'Write 150+ words in 20 min · Focus: key features, trends, comparison',dom:'eng',mins:20});
+  if([1,3,6].includes(cd))tasks.push({id:'listen',name:EW.listen[(d-1)%EW.listen.length],sub:'Listening: predict answers, check spelling, understand fast speech',dom:'eng',mins:30});
+  else if([2,5].includes(cd))tasks.push({id:'read',name:EW.read[(d-1)%EW.read.length],sub:'Reading: timed practice, accuracy first, then speed',dom:'eng',mins:30});
+  else if(cd===4)tasks.push({id:'speak',name:EW.speak[(d-1)%EW.speak.length],sub:'Speaking: record yourself then replay and self-evaluate honestly',dom:'eng',mins:30});
+  return{rev:false,tasks};
+}
+function getMathDay(d){
+  if(d%7===0)return{rev:true,tasks:[{id:'r1',name:'Review all 6 topics from this week',sub:'Re-read notes, re-derive key formulas from memory',dom:'math'},{id:'r2',name:'Re-solve 3 practice problems per topic',sub:'Focus on concepts where you felt shaky',dom:'math'},{id:'r3',name:'Flag weak areas for next cycle',sub:'Write what needs more practice next week',dom:'math'}]};
+  const idx=getMathIdx(d),tp=MT[Math.min(idx,MT.length-1)];
+  return{rev:false,tasks:[{id:'concept',name:tp.t,sub:'📌 Used in AI: '+tp.u,dom:'math',mins:35},{id:'practice',name:'Solve 3–5 practice problems on this topic',sub:'Apply the concept hands-on — do not just read theory',dom:'math',mins:25}]};
+}
+
+function buildSchedule(){
+  const s=[];
+  for(let i=1;i<=TOTAL;i++){
+    const dt=new Date(START);dt.setDate(dt.getDate()+i-1);
+    s.push({day:i,date:dt.toLocaleDateString('en-US',{month:'short',day:'numeric'}),isRev:i%7===0,week:Math.ceil(i/7),eng:getEngDay(i),math:getMathDay(i)});
+  }return s;
+}
+const SCHED=buildSchedule();
+
+let P={};
+function loadP(){try{const r=localStorage.getItem(SK);if(r)P=JSON.parse(r);}catch(e){P={};}}
+function saveP(){try{localStorage.setItem(SK,JSON.stringify(P));}catch(e){}}
+function tk(d,dom,id){return'd'+d+'_'+dom+'_'+id}
+function isDone(d,dom,id){return!!(P[tk(d,dom,id)]&&P[tk(d,dom,id)].done)}
+function getTime(d,dom,id){return P[tk(d,dom,id)]&&P[tk(d,dom,id)].time||null}
+function toggleTask(d,dom,id){
+  const k=tk(d,dom,id),was=P[k]&&P[k].done;
+  P[k]=was?{done:false,time:null}:{done:true,time:new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})};
+  saveP();renderContent();
+}
+
+let curTab='dashboard',openDays=new Set(),openWeeks=new Set(),curFilter='all';
+function todayNum(){
+  const t=new Date();t.setHours(0,0,0,0);
+  const s=new Date(START);s.setHours(0,0,0,0);
+  return Math.max(1,Math.min(Math.round((t-s)/864e5)+1,TOTAL));
+}
+function dayComp(d){
+  const day=SCHED[d-1],all=[];
+  day.eng.tasks.forEach(t=>all.push({dom:'eng',id:t.id}));
+  day.math.tasks.forEach(t=>all.push({dom:'math',id:t.id}));
+  const dn=all.filter(t=>isDone(d,t.dom,t.id)).length;
+  return{done:dn,total:all.length,pct:all.length?Math.round(dn/all.length*100):0};
+}
+function domComp(dom){
+  const tn=todayNum();let dn=0,tot=0;
+  for(let i=1;i<=tn;i++){SCHED[i-1][dom==='eng'?'eng':'math'].tasks.forEach(t=>{tot++;if(isDone(i,dom,t.id))dn++;});}
+  return{done:dn,total:tot,pct:tot?Math.round(dn/tot*100):0};
+}
+function streak(){const tn=todayNum();let s=0;for(let i=tn;i>=1;i--){if(dayComp(i).pct>=50)s++;else break;}return s;}
+function overallPct(){const tn=todayNum();let dn=0,tot=0;for(let i=1;i<=tn;i++){const c=dayComp(i);dn+=c.done;tot+=c.total;}return tot?Math.round(dn/tot*100):0;}
+
+function donutSVG(done,total,color,label){
+  const pct=total?done/total:0,r=34,circ=2*Math.PI*r,dash=pct*circ;
+  return '<div class="donut-wrap"><svg width="90" height="90" viewBox="0 0 80 80">'+
+    '<circle cx="40" cy="40" r="'+r+'" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>'+
+    '<circle cx="40" cy="40" r="'+r+'" fill="none" stroke="'+color+'" stroke-width="10" stroke-dasharray="'+dash+' '+(circ-dash)+'" stroke-linecap="round" transform="rotate(-90,40,40)" opacity="'+(pct>0?1:0.3)+'"/>'+
+    '<text x="40" y="39" text-anchor="middle" font-size="13" font-weight="800" fill="'+color+'" font-family="JetBrains Mono,monospace">'+Math.round(pct*100)+'</text>'+
+    '<text x="40" y="50" text-anchor="middle" font-size="7" fill="rgba(255,255,255,0.35)" font-family="JetBrains Mono">%</text></svg>'+
+    '<div class="donut-lbl">'+label+'</div><div class="donut-sub">'+done+'/'+total+' tasks</div></div>';
+}
+
+function graphSVG(){
+  const tn=todayNum(),data=[];
+  for(let i=1;i<=Math.min(tn,TOTAL);i++)data.push(dayComp(i).pct);
+  if(!data.length)return '<p style="color:var(--muted2);font-size:0.82rem;padding:16px">Complete Day 1 to see your graph!</p>';
+  const W=800,H=160,pl=38,pr=16,pt=16,pb=30,gW=W-pl-pr,gH=H-pt-pb;
+  const xs=gW/Math.max(data.length-1,1);
+  const pts=data.map((v,i)=>((pl+i*xs)+','+(pt+gH-(v/100)*gH))).join(' ');
+  const area=(pl+','+(pt+gH)+' ')+pts+(' '+(pl+(data.length-1)*xs)+','+(pt+gH));
+  const grids=[0,25,50,75,100].map(v=>{const y=pt+gH-(v/100)*gH;return'<line x1="'+pl+'" y1="'+y+'" x2="'+(W-pr)+'" y2="'+y+'" stroke="rgba(255,255,255,0.05)" stroke-width="1"/><text x="'+(pl-4)+'" y="'+(y+4)+'" text-anchor="end" font-size="9" fill="rgba(255,255,255,0.25)" font-family="JetBrains Mono">'+v+'</text>';}).join('');
+  const dots=data.map((v,i)=>v===100?'<circle cx="'+(pl+i*xs)+'" cy="'+(pt+gH-(v/100)*gH)+'" r="3.5" fill="#34D399"/>':v>0?'<circle cx="'+(pl+i*xs)+'" cy="'+(pt+gH-(v/100)*gH)+'" r="2" fill="#A78BFA" opacity="0.7"/>':'').join('');
+  return '<div class="graph-wrap"><svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:170px">'+
+    '<defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#A78BFA" stop-opacity="0.3"/><stop offset="100%" stop-color="#A78BFA" stop-opacity="0"/></linearGradient></defs>'+
+    grids+'<polygon points="'+area+'" fill="url(#gg)"/>'+
+    '<polyline points="'+pts+'" fill="none" stroke="#A78BFA" stroke-width="2.5" stroke-linejoin="round"/>'+dots+'</svg></div>';
+}
+
+function heatmap(){
+  const tn=todayNum();
+  let h='<div class="heatmap">';
+  for(let i=1;i<=150;i++){
+    const pct=i<=tn?dayComp(i).pct:-1;
+    const c=pct<0?'rgba(255,255,255,0.04)':pct===0?'rgba(248,113,113,0.45)':pct<50?'rgba(251,146,60,0.5)':pct<100?'rgba(167,139,250,0.65)':'#A78BFA';
+    h+='<div class="hm-cell" style="background:'+c+'" title="Day '+i+(i<=tn?': '+pct+'%':' — future')+'"></div>';
+  }
+  return h+'</div><div style="font-size:0.67rem;color:var(--muted2);margin-top:6px">⬜ Future &nbsp; 🔴 0% &nbsp; 🟠 Partial &nbsp; 🟣 50–99% &nbsp; <span style="color:#A78BFA;font-weight:700">■</span> 100%</div>';
+}
+
+function rTask(d,dom,task){
+  const done=isDone(d,dom,task.id),tm=getTime(d,dom,task.id);
+  return '<div class="task-item">'+
+    '<div class="task-check '+(done?'done':'')+'" onclick="toggleTask('+d+',' +"'"+dom+"'"+',' +"'"+task.id+"'"+')"></div>'+
+    '<div class="task-info">'+
+    '<div class="task-name '+(done?'done-text':'')+'">'+task.name+'</div>'+
+    '<div class="task-sub">'+task.sub+(task.mins?' · <span style="color:var(--purple);font-weight:600">'+task.mins+' min</span>':'')+'</div>'+
+    (tm?'<div class="task-time">✅ Done at '+tm+'</div>':'')+
+    '<span class="dp '+(dom==='eng'?'dp-eng':'dp-math')+'">'+(dom==='eng'?'🇬🇧 IELTS English':'🧮 AI Math')+'</span>'+
+    '</div></div>';
+}
+
+function phLabel(d){const p=getPhase(d);return p===1?'<span class="badge badge-blue">Phase 1 · Foundation</span>':p===2?'<span class="badge badge-purple">Phase 2 · IELTS Drill</span>':'<span class="badge badge-green">Phase 3 · Simulation</span>';}
+
+function rDayItem(d,dom){
+  const day=SCHED[d-1],tn=todayNum(),isToday=d===tn;
+  const tasks=day[dom==='eng'?'eng':'math'].tasks;
+  let dn=0,tot=0;tasks.forEach(t=>{tot++;if(isDone(d,dom,t.id))dn++;});
+  const pct=tot?Math.round(dn/tot*100):0,key=d+'_'+dom,isOpen=openDays.has(key);
+  const preview=day.isRev?'📚 Revision Day':(tasks[0]?tasks[0].name.substring(0,50)+(tasks[0].name.length>50?'…':''):'');
+  const bCls='day-badge '+(isToday?'today-b':day.isRev?'rev':pct===100?'done-b':'');
+  const iCls='day-item '+(isToday?'today-day':pct===100?'done-day':'');
+  return '<div class="'+iCls+'" id="dy'+d+dom+'">'+
+    '<div class="day-hdr" onclick="toggleDay(' +"'"+key+"'"+')">'+
+    '<span class="'+bCls+'">D'+d+'</span>'+
+    '<span class="day-date">'+day.date+'</span>'+
+    (isToday?'<span class="badge badge-purple" style="font-size:0.6rem">TODAY</span>':'')+
+    (day.isRev?'<span class="badge badge-orange">📚 REV</span>':'')+
+    '<span class="day-preview">'+preview+'</span>'+
+    '<span class="day-pct" style="color:'+(pct===100?'var(--green)':'var(--purple)')+'">'+pct+'%</span>'+
+    '<span class="day-arrow">'+(isOpen?'▲':'▼')+'</span></div>'+
+    '<div class="day-panel '+(isOpen?'open':'')+'">'+((!day.isRev)?phLabel(d)+'<br><br>':'')+
+    tasks.map(t=>rTask(d,dom,t)).join('')+'</div></div>';
+}
+
+function rDashboard(){
+  const tn=todayNum(),day=SCHED[tn-1],tc=dayComp(tn);
+  const es=domComp('eng'),ms=domComp('math');
+  return '<div class="stats-row">'+
+    '<div class="stat-card"><div class="stat-num">'+tn+'</div><div class="stat-label">📅 Current Day</div></div>'+
+    '<div class="stat-card"><div class="stat-num">'+(TOTAL-tn+1)+'</div><div class="stat-label">⏳ Days Left</div></div>'+
+    '<div class="stat-card"><div class="stat-num orange">'+streak()+'</div><div class="stat-label">🔥 Day Streak</div></div>'+
+    '<div class="stat-card"><div class="stat-num green">'+overallPct()+'%</div><div class="stat-label">✅ Overall Done</div></div></div>'+
+    '<div class="today-card">'+
+    '<div class="today-title">📌 Day '+tn+' — '+day.date+' <span class="badge badge-purple">TODAY</span>'+(day.isRev?' <span class="badge badge-orange">📚 REVISION</span>':'')+
+    (!day.isRev?' '+phLabel(tn):'')+'</div>'+
+    '<div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:6px"><span style="color:var(--muted)">Today Progress</span><span style="font-weight:700;color:var(--purple);font-family:JetBrains Mono,monospace">'+tc.done+'/'+tc.total+' · '+tc.pct+'%</span></div>'+
+    '<div class="prog-bar" style="margin-bottom:14px"><div class="prog-fill '+(tc.pct===100?'green':'purple')+'" style="width:'+tc.pct+'%"></div></div>'+
+    day.eng.tasks.map(t=>rTask(tn,'eng',t)).join('')+
+    day.math.tasks.map(t=>rTask(tn,'math',t)).join('')+'</div>'+
+    '<div class="card"><div class="card-title">Domain Progress (days so far)</div><div class="donut-row">'+
+    donutSVG(es.done,es.total,'#60A5FA','🇬🇧 English')+
+    donutSVG(ms.done,ms.total,'#A78BFA','🧮 AI Math')+
+    donutSVG(es.done+ms.done,es.total+ms.total,'#34D399','🎯 Overall')+
+    '</div></div>';
+}
+
+function rDomTab(dom){
+  let html='<div class="filter-row">'+
+    '<button class="jump-btn" onclick="jumpToToday(\''+dom+'\')">📍 Jump to Today</button>'+
+    '<button class="filter-btn '+(curFilter==='all'?'active':'')+'" onclick="setF(\'all\')">All Days</button>'+
+    '<button class="filter-btn '+(curFilter==='pending'?'active':'')+'" onclick="setF(\'pending\')">⏳ Pending</button>'+
+    '<button class="filter-btn '+(curFilter==='done'?'active':'')+'" onclick="setF(\'done\')">✅ Done</button></div>';
+  for(let w=1;w<=22;w++){
+    const s=(w-1)*7+1,e=Math.min(w*7,150);if(s>150)break;
+    const wDays=SCHED.slice(s-1,e),tn=todayNum(),isCur=w===Math.ceil(tn/7),isOpen=openWeeks.has(w);
+    let wd=0,wt=0;
+    wDays.forEach((d,i)=>{const n=s+i,tasks=d[dom==='eng'?'eng':'math'].tasks;tasks.forEach(t=>{wt++;if(isDone(n,dom,t.id))wd++;});});
+    const wp=wt?Math.round(wd/wt*100):0,sd=SCHED[s-1].date,ed=SCHED[Math.min(e,150)-1].date;
+    html+='<div class="week-block"><div class="week-hdr '+(isCur?'cur':'')+'" onclick="toggleWeek('+w+')">'+
+      '<span>Week '+w+(isCur?' ← <span style="color:var(--purple)">Current</span>':'')+' &nbsp;·&nbsp; '+sd+' – '+ed+'</span>'+
+      '<span style="display:flex;align-items:center;gap:10px;font-family:JetBrains Mono,monospace;font-size:0.78rem;color:var(--muted)"><span style="color:'+(wp===100?'var(--green)':'var(--purple)')+'">'+wp+'%</span>'+(isOpen?'▲':'▼')+'</span></div>'+
+      '<div class="week-days '+(isOpen?'open':'')+'">'+
+      wDays.map((d,i)=>{
+        const n=s+i,c=dayComp(n);
+        if(curFilter==='pending'&&c.pct===100)return'';
+        if(curFilter==='done'&&c.pct<100)return'';
+        return rDayItem(n,dom);
+      }).join('')+'</div></div>';
+  }return html;
+}
+
+function rProgress(){
+  const tn=todayNum(),es=domComp('eng'),ms=domComp('math');
+  let wkly='';
+  for(let w=1;w<=Math.ceil(tn/7);w++){
+    const s=(w-1)*7+1,e=Math.min(w*7,tn);let dn=0,tot=0;
+    for(let i=s;i<=e;i++){const c=dayComp(i);dn+=c.done;tot+=c.total;}
+    const p=tot?Math.round(dn/tot*100):0;
+    wkly+='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border2)">'+
+      '<span style="font-size:0.78rem;font-weight:700;width:65px;font-family:JetBrains Mono,monospace">Week '+w+'</span>'+
+      '<div class="prog-bar" style="flex:1"><div class="prog-fill '+(p===100?'green':'purple')+'" style="width:'+p+'%"></div></div>'+
+      '<span style="font-size:0.75rem;font-weight:700;width:38px;text-align:right;font-family:JetBrains Mono,monospace;color:'+(p===100?'var(--green)':'var(--purple)')+'">'+p+'%</span></div>';
+  }
+  return '<div class="card"><div class="card-title">📈 Consistency Graph — Daily %</div>'+graphSVG()+'</div>'+
+    '<div class="card"><div class="card-title">🗓️ 150-Day Heatmap</div>'+heatmap()+'</div>'+
+    '<div class="card"><div class="card-title">📊 Domain Breakdown</div>'+
+    '<div style="display:flex;flex-direction:column;gap:14px">'+
+    '<div><div style="display:flex;justify-content:space-between;font-size:0.84rem;font-weight:700;margin-bottom:6px"><span>🇬🇧 English IELTS</span><span style="font-family:JetBrains Mono,monospace;color:var(--blue)">'+es.done+'/'+es.total+' · '+es.pct+'%</span></div><div class="prog-bar" style="height:10px"><div class="prog-fill blue" style="width:'+es.pct+'%"></div></div></div>'+
+    '<div><div style="display:flex;justify-content:space-between;font-size:0.84rem;font-weight:700;margin-bottom:6px"><span>🧮 AI Mathematics</span><span style="font-family:JetBrains Mono,monospace;color:var(--purple)">'+ms.done+'/'+ms.total+' · '+ms.pct+'%</span></div><div class="prog-bar" style="height:10px"><div class="prog-fill purple" style="width:'+ms.pct+'%"></div></div></div></div></div>'+
+    '<div class="card"><div class="card-title">📅 Weekly Progress</div>'+(wkly||'<p style="color:var(--muted2);font-size:0.82rem">Complete your first week to see data.</p>')+'</div>'+
+    '<div class="card"><div class="card-title">🏆 Milestones</div>'+
+    [30,60,90,120,150].map(m=>{
+      let dn=0,tot=0;for(let i=1;i<=m;i++){const c=dayComp(i);dn+=c.done;tot+=c.total;}
+      const p=tot?Math.round(dn/tot*100):0,reached=tn>=m;
+      return '<div class="ms-row"><span style="font-size:1.4rem">'+(reached&&p>=80?'🏆':reached?'🔄':'🔒')+'</span>'+
+        '<div style="flex:1"><div style="font-size:0.86rem;font-weight:700">Day '+m+' Checkpoint</div>'+
+        '<div style="font-size:0.72rem;color:var(--muted)">'+(m===30?'Linear Algebra + Probability Complete':m===60?'Calculus Foundations Done':m===90?'Optimization Mastered':m===120?'Deep Learning Math Done':'🎓 Full 150-Day Goal!')+'</div></div>'+
+        '<div style="text-align:right"><div style="font-size:0.82rem;font-weight:700;color:'+(reached?'var(--purple)':'var(--muted2)')+'">'+( reached?p+'%':'')+'</div><div style="font-size:0.7rem;color:var(--muted2)">'+(reached?'Reached':'Locked')+'</div></div></div>';
+    }).join('')+'</div>';
+}
+
+function switchTab(t){
+  curTab=t;
+  document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active',el.textContent.toLowerCase().includes(t==='dashboard'?'dashboard':t==='english'?'english':t==='math'?'math':'progress')));
+  renderContent();
+}
+function toggleDay(k){openDays.has(k)?openDays.delete(k):openDays.add(k);renderContent();}
+function toggleWeek(w){openWeeks.has(w)?openWeeks.delete(w):openWeeks.add(w);renderContent();}
+function setF(f){curFilter=f;renderContent();}
+function jumpToToday(dom){
+  const tn=todayNum(),w=Math.ceil(tn/7);
+  openWeeks.add(w);openDays.add(tn+'_'+dom);
+  renderContent();
+  setTimeout(()=>{const el=document.getElementById('dy'+tn+dom);if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},100);
+}
+function renderContent(){
+  const el=document.getElementById('content');
+  if(curTab==='dashboard')el.innerHTML=rDashboard();
+  else if(curTab==='english')el.innerHTML=rDomTab('eng');
+  else if(curTab==='math')el.innerHTML=rDomTab('math');
+  else el.innerHTML=rProgress();
+}
+loadP();
+openWeeks.add(Math.ceil(todayNum()/7));
+renderContent();
+</script>
+</body>
+</html>
