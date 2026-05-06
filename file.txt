@@ -1,0 +1,37 @@
+hell bhai kesy ho what are u doing?
+f = open("file.txt", "r")
+for line in f:
+    print(line)
+f.close()
+f = open("file.txt", "r")
+for line in f:
+    print(line)
+f.close()
+f = open("file.txt", "r")
+for line in f:
+    print(line)
+f.close()
+f = open("file.txt", "r")
+for line in f:
+    print(line)
+f.close()
+f = open("file.txt", "r")
+for line in f:
+    print(line)
+f.close()
+f = open("file.txt", "r")
+for line in f:
+    print(line)
+f.close()
+f = open("file.txt", "r")
+for line in f:
+    print(line)
+f.close()
+f = open("file.txt", "r")
+for line in f:
+    print(line)
+f.close()
+f = open("file.txt", "r")
+for line in f:
+    print(line)
+f.close()
